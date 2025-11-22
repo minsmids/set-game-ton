@@ -13,16 +13,21 @@ const ProfilePage = () => {
     const [isSaving, setIsSaving] = useState(false);
 
     useEffect(() => {
-        if (!wallet) {
+        const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
+        if (!wallet && !tgUser) {
             navigate('/');
             return;
         }
 
         const socket = connectSocket();
-        const walletAddress = wallet.account.address;
+        const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
+
+        const payload = {};
+        if (wallet) payload.wallet = wallet.account.address;
+        if (tgUser) payload.telegramId = tgUser.id;
 
         // Fetch profile
-        socket.emit('get_profile', { wallet: walletAddress });
+        socket.emit('get_profile', payload);
 
         socket.on('profile_data', (data) => {
             setProfile(data);
@@ -73,13 +78,18 @@ const ProfilePage = () => {
     }, [wallet, navigate]);
 
     const handleSave = () => {
-        if (!wallet) return;
+        const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
+        if (!wallet && !tgUser) return;
+        setIsSaving(true);
         setIsSaving(true);
         const socket = connectSocket();
-        socket.emit('update_profile', {
-            wallet: wallet.account.address,
-            name: newName
-        });
+
+        const payload = {};
+        if (wallet) payload.wallet = wallet.account.address;
+        if (tgUser) payload.telegramId = tgUser.id;
+        payload.name = newName;
+
+        socket.emit('update_profile', payload);
     };
 
     const useTelegramName = () => {

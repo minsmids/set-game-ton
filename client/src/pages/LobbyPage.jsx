@@ -92,16 +92,22 @@ const LobbyPage = () => {
 
     const handleJoinQueue = () => {
         const userData = getUserData();
-        if (!userData) return;
+        console.log('Join Queue clicked. UserData:', userData);
+        if (!userData) {
+            console.error('No user data found');
+            return;
+        }
 
         setError('');
         setStatus('queue');
         const socket = connectSocket();
+        console.log('Socket connected:', socket.id, 'Connected status:', socket.connected);
         socket.emit('join_queue', userData);
     };
 
     const handleCreatePrivate = () => {
         const userData = getUserData();
+        console.log('Create Private clicked. UserData:', userData);
         if (!userData) return;
 
         setError('');
