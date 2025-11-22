@@ -1,16 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { TonConnectButton, useTonWallet } from '@tonconnect/ui-react';
 import styles from './MainMenu.module.css';
 
 const MainMenu = () => {
-    const wallet = useTonWallet();
 
     return (
         <div className={styles.container}>
             <div className={styles.walletBtn}>
-                <Link to="/profile" style={{ marginRight: '10px', textDecoration: 'none', fontSize: '1.5rem' }}>👤</Link>
-                <TonConnectButton />
+                <Link to="/profile" style={{ textDecoration: 'none', fontSize: '1.5rem' }}>👤</Link>
             </div>
 
             <h1 className={styles.title}>SET GAME</h1>

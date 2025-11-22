@@ -15,7 +15,14 @@ export const getSocket = () => {
 export const connectSocket = () => {
     const s = getSocket();
     if (!s.connected) {
+        console.log('Connecting socket...');
         s.connect();
+        s.on('connect_error', (err) => {
+            console.error('Socket connection error:', err);
+        });
+        s.on('connect', () => {
+            console.log('Socket connected successfully:', s.id);
+        });
     }
     return s;
 };

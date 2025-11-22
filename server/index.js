@@ -46,7 +46,7 @@ const GameManager = require('./gameManager');
 
 const io = new Server(server, {
     cors: {
-        origin: process.env.CLIENT_URL || "http://localhost:5173", // Vite default port
+        origin: "*",
         methods: ["GET", "POST"]
     }
 });
