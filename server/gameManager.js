@@ -31,7 +31,7 @@ class GameManager {
         socket.on('get_leaderboard', () => {
             const leaderboard = Array.from(this.users.entries())
                 .map(([wallet, data]) => ({ wallet, ...data }))
-                .sort((a, b) => b.points - a.points)
+                .sort((a, b) => b.elo - a.elo)
                 .slice(0, 10); // Top 10
             socket.emit('leaderboard_data', leaderboard);
         });
@@ -43,19 +43,33 @@ class GameManager {
 
     // ... (existing methods)
 
-    updateUserStats(wallet, isWinner, pointsEarned) {
-        if (!wallet) return;
+    calculateEloChange(ratingA, ratingB, actualScore) {
+        const K = 32;
+        const expectedScore = 1 / (1 + Math.pow(10, (ratingB - ratingA) / 400));
+        return Math.round(K * (actualScore - expectedScore));
+    }
+
+    updateUserStats(wallet, isWinner, opponentRating) {
+        if (!wallet) return { newRating: 1200, change: 0 };
 
         if (!this.users.has(wallet)) {
-            this.users.set(wallet, { wins: 0, points: 0, gamesPlayed: 0 });
+            this.users.set(wallet, { wins: 0, elo: 1200, gamesPlayed: 0 });
         }
 
         const stats = this.users.get(wallet);
+        const currentRating = stats.elo;
+        const actualScore = isWinner ? 1 : 0;
+
+        const change = this.calculateEloChange(currentRating, opponentRating, actualScore);
+        const newRating = currentRating + change;
+
         stats.gamesPlayed += 1;
-        stats.points += pointsEarned;
+        stats.elo = newRating;
         if (isWinner) {
             stats.wins += 1;
         }
+
+        return { newRating, change };
     }
 
     handleGameAction(socket, action) {
@@ -85,18 +99,27 @@ class GameManager {
             const winnerData = room.players[opponentId];
             const loserData = room.players[socket.id];
 
-            // Update stats
-            // Winner gets 10 points + their score
-            // Loser gets their score
-            this.updateUserStats(winnerData.wallet, true, 10 + winnerData.score);
-            this.updateUserStats(loserData.wallet, false, loserData.score);
+            // Get current ratings (default 1200 if new)
+            const winnerWallet = winnerData.wallet;
+            const loserWallet = loserData.wallet;
+
+            const winnerStats = this.users.get(winnerWallet) || { elo: 1200 };
+            const loserStats = this.users.get(loserWallet) || { elo: 1200 };
+
+            // Calculate and update ELO
+            const winnerResult = this.updateUserStats(winnerWallet, true, loserStats.elo);
+            const loserResult = this.updateUserStats(loserWallet, false, winnerStats.elo);
 
             this.io.to(roomId).emit('game_over', {
                 winner: opponentId,
                 reason: 'surrender',
                 scores: {
-                    [opponentId]: 10 + winnerData.score,
+                    [opponentId]: winnerData.score,
                     [socket.id]: loserData.score
+                },
+                ratings: {
+                    [opponentId]: { new: winnerResult.newRating, change: winnerResult.change },
+                    [socket.id]: { new: loserResult.newRating, change: loserResult.change }
                 }
             });
 

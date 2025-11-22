@@ -21,7 +21,14 @@ const MultiplayerPage = () => {
         });
 
         socket.on('game_over', (data) => {
-            alert(`Game Over! Winner: ${data.winner === socket.id ? 'You' : 'Opponent'}`);
+            const isWinner = data.winner === socket.id;
+            const ratingData = data.ratings?.[socket.id];
+            const ratingChange = ratingData ? ratingData.change : 0;
+            const newRating = ratingData ? ratingData.new : 1200;
+
+            const changeStr = ratingChange >= 0 ? `+${ratingChange}` : ratingChange;
+
+            alert(`Game Over! ${isWinner ? 'You Won! 🏆' : 'You Lost 😔'}\n\nRating: ${newRating} (${changeStr})`);
             navigate('/');
         });
 

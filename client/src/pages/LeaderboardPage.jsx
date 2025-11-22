@@ -40,7 +40,7 @@ const LeaderboardPage = () => {
                         <div className={styles.row + ' ' + styles.headerRow}>
                             <span className={styles.rank}>#</span>
                             <span className={styles.player}>Player</span>
-                            <span className={styles.points}>Points</span>
+                            <span className={styles.points}>Rating</span>
                             <span className={styles.wins}>Wins</span>
                         </div>
                         {leaderboard.length === 0 ? (
@@ -54,7 +54,7 @@ const LeaderboardPage = () => {
                                     <span className={styles.player}>
                                         {user.wallet.slice(0, 4)}...{user.wallet.slice(-4)}
                                     </span>
-                                    <span className={styles.points}>{user.points}</span>
+                                    <span className={styles.points}>{user.elo}</span>
                                     <span className={styles.wins}>{user.wins}</span>
                                 </div>
                             ))
