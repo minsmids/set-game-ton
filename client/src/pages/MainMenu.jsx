@@ -9,6 +9,7 @@ const MainMenu = () => {
     return (
         <div className={styles.container}>
             <div className={styles.walletBtn}>
+                <Link to="/profile" style={{ marginRight: '10px', textDecoration: 'none', fontSize: '1.5rem' }}>👤</Link>
                 <TonConnectButton />
             </div>
 

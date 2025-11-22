@@ -1,0 +1,143 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    padding: 20px;
+    background: var(--bg-color);
+    color: var(--text-color);
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 30px;
+    position: relative;
+}
+
+.backButton {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1.2rem;
+    cursor: pointer;
+    position: absolute;
+    left: 0;
+}
+
+.header h1 {
+    flex: 1;
+    text-align: center;
+    margin: 0;
+    font-size: 2rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.card {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    padding: 30px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.stats {
+    display: flex;
+    justify-content: space-around;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    border-radius: 15px;
+}
+
+.statItem {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.statLabel {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+}
+
+.statValue {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--accent-color);
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.form label {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.form input {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 15px;
+    border-radius: 10px;
+    color: white;
+    font-size: 1.1rem;
+    outline: none;
+}
+
+.form input:focus {
+    border-color: var(--primary-color);
+}
+
+.saveButton {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 15px;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.saveButton:active {
+    transform: scale(0.98);
+}
+
+.tgButton {
+    background: #24A1DE;
+    /* Telegram blue */
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    margin-bottom: 10px;
+}
+
+.walletInfo {
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    margin-top: auto;
+}
+
+.verified {
+    color: #4CAF50;
+    margin-top: 5px;
+}
+
+.loader {
+    text-align: center;
+    margin-top: 50px;
+    color: var(--text-secondary);
+}

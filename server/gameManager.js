@@ -28,9 +28,34 @@ class GameManager {
             this.joinPrivateRoom(socket, code, userData);
         });
 
+        socket.on('update_profile', ({ wallet, name, telegramId }) => {
+            if (!wallet) return;
+
+            if (!this.users.has(wallet)) {
+                this.users.set(wallet, { wins: 0, elo: 1200, gamesPlayed: 0 });
+            }
+
+            const user = this.users.get(wallet);
+            if (name) user.name = name;
+            if (telegramId) user.telegramId = telegramId;
+
+            // Send back updated profile
+            socket.emit('profile_updated', { wallet, ...user });
+        });
+
+        socket.on('get_profile', ({ wallet }) => {
+            if (!wallet) return;
+            const user = this.users.get(wallet) || { wins: 0, elo: 1200, gamesPlayed: 0 };
+            socket.emit('profile_data', { wallet, ...user });
+        });
+
         socket.on('get_leaderboard', () => {
             const leaderboard = Array.from(this.users.entries())
-                .map(([wallet, data]) => ({ wallet, ...data }))
+                .map(([wallet, data]) => ({
+                    wallet,
+                    name: data.name, // Include name
+                    ...data
+                }))
                 .sort((a, b) => b.elo - a.elo)
                 .slice(0, 10); // Top 10
             socket.emit('leaderboard_data', leaderboard);
