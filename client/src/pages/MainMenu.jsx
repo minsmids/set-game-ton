@@ -25,19 +25,20 @@ const MainMenu = () => {
                 </Link>
 
                 <div
-                    className={`${styles.menuItem} ${!wallet ? styles.disabled : ''}`}
+                    className={`${styles.menuItem} ${!wallet && !window.Telegram?.WebApp?.initDataUnsafe?.user ? styles.disabled : ''}`}
                     onClick={(e) => {
-                        if (!wallet) {
+                        const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
+                        if (!wallet && !tgUser) {
                             e.preventDefault();
-                            alert('Please connect your TON wallet to play Ranked Match!');
+                            alert('Please connect your TON wallet OR open via Telegram to play Ranked Match!');
                         }
                     }}
                 >
-                    <Link to={wallet ? "/lobby" : "#"} style={{ textDecoration: 'none', color: 'inherit', display: 'flex', width: '100%' }}>
+                    <Link to={(wallet || window.Telegram?.WebApp?.initDataUnsafe?.user) ? "/lobby" : "#"} style={{ textDecoration: 'none', color: 'inherit', display: 'flex', width: '100%' }}>
                         <div className={styles.icon}>⚔️</div>
                         <div className={styles.label}>
                             <h3>Ranked Match</h3>
-                            <p>{wallet ? "Play against others" : "Connect Wallet to Play"}</p>
+                            <p>{(wallet || window.Telegram?.WebApp?.initDataUnsafe?.user) ? "Play against others" : "Connect Wallet or Telegram"}</p>
                         </div>
                     </Link>
                 </div>

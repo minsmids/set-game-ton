@@ -13,6 +13,7 @@ class GameManager {
         console.log('Player connected:', socket.id);
 
         socket.on('join_queue', (userData) => {
+            // userData: { wallet?, telegramId?, name }
             this.addToQueue(socket, userData);
         });
 
@@ -28,32 +29,35 @@ class GameManager {
             this.joinPrivateRoom(socket, code, userData);
         });
 
-        socket.on('update_profile', ({ wallet, name, telegramId }) => {
-            if (!wallet) return;
+        socket.on('update_profile', ({ wallet, telegramId, name }) => {
+            const userId = wallet || (telegramId ? `tg_${telegramId}` : null);
+            if (!userId) return;
 
-            if (!this.users.has(wallet)) {
-                this.users.set(wallet, { wins: 0, elo: 1200, gamesPlayed: 0 });
+            if (!this.users.has(userId)) {
+                this.users.set(userId, { wins: 0, elo: 1200, gamesPlayed: 0 });
             }
 
-            const user = this.users.get(wallet);
+            const user = this.users.get(userId);
             if (name) user.name = name;
             if (telegramId) user.telegramId = telegramId;
+            if (wallet) user.wallet = wallet;
 
             // Send back updated profile
-            socket.emit('profile_updated', { wallet, ...user });
+            socket.emit('profile_updated', { userId, ...user });
         });
 
-        socket.on('get_profile', ({ wallet }) => {
-            if (!wallet) return;
-            const user = this.users.get(wallet) || { wins: 0, elo: 1200, gamesPlayed: 0 };
-            socket.emit('profile_data', { wallet, ...user });
+        socket.on('get_profile', ({ wallet, telegramId }) => {
+            const userId = wallet || (telegramId ? `tg_${telegramId}` : null);
+            if (!userId) return;
+            const user = this.users.get(userId) || { wins: 0, elo: 1200, gamesPlayed: 0 };
+            socket.emit('profile_data', { userId, ...user });
         });
 
         socket.on('get_leaderboard', () => {
             const leaderboard = Array.from(this.users.entries())
-                .map(([wallet, data]) => ({
-                    wallet,
-                    name: data.name, // Include name
+                .map(([id, data]) => ({
+                    id,
+                    name: data.name || (data.wallet ? `${data.wallet.slice(0, 4)}...` : (data.telegramId ? `TG User ${data.telegramId}` : `Player ${id.slice(0, 4)}`)),
                     ...data
                 }))
                 .sort((a, b) => b.elo - a.elo)
@@ -74,14 +78,14 @@ class GameManager {
         return Math.round(K * (actualScore - expectedScore));
     }
 
-    updateUserStats(wallet, isWinner, opponentRating) {
-        if (!wallet) return { newRating: 1200, change: 0 };
+    updateUserStats(userId, isWinner, opponentRating) {
+        if (!userId) return { newRating: 1200, change: 0 };
 
-        if (!this.users.has(wallet)) {
-            this.users.set(wallet, { wins: 0, elo: 1200, gamesPlayed: 0 });
+        if (!this.users.has(userId)) {
+            this.users.set(userId, { wins: 0, elo: 1200, gamesPlayed: 0 });
         }
 
-        const stats = this.users.get(wallet);
+        const stats = this.users.get(userId);
         const currentRating = stats.elo;
         const actualScore = isWinner ? 1 : 0;
 
@@ -124,16 +128,16 @@ class GameManager {
             const winnerData = room.players[opponentId];
             const loserData = room.players[socket.id];
 
-            // Get current ratings (default 1200 if new)
-            const winnerWallet = winnerData.wallet;
-            const loserWallet = loserData.wallet;
+            // Get IDs
+            const winnerId = winnerData.wallet || (winnerData.telegramId ? `tg_${winnerData.telegramId}` : null);
+            const loserId = loserData.wallet || (loserData.telegramId ? `tg_${loserData.telegramId}` : null);
 
-            const winnerStats = this.users.get(winnerWallet) || { elo: 1200 };
-            const loserStats = this.users.get(loserWallet) || { elo: 1200 };
+            const winnerStats = this.users.get(winnerId) || { elo: 1200 };
+            const loserStats = this.users.get(loserId) || { elo: 1200 };
 
             // Calculate and update ELO
-            const winnerResult = this.updateUserStats(winnerWallet, true, loserStats.elo);
-            const loserResult = this.updateUserStats(loserWallet, false, winnerStats.elo);
+            const winnerResult = this.updateUserStats(winnerId, true, loserStats.elo);
+            const loserResult = this.updateUserStats(loserId, false, winnerStats.elo);
 
             this.io.to(roomId).emit('game_over', {
                 winner: opponentId,

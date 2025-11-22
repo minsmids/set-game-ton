@@ -15,13 +15,26 @@ const LobbyPage = () => {
     const [joinCode, setJoinCode] = useState('');
     const [error, setError] = useState('');
 
+    const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
+    const isAuthenticated = wallet || tgUser;
+
     useEffect(() => {
-        if (!wallet) {
+        if (!isAuthenticated) {
             navigate('/');
             return;
         }
 
         const socket = connectSocket();
+
+        // Check for deep link start param
+        const startParam = window.Telegram?.WebApp?.initDataUnsafe?.start_param;
+        if (startParam && startParam.startsWith('room_')) {
+            const code = startParam.split('_')[1];
+            if (code) {
+                setJoinCode(code);
+                // Auto join logic could go here, but let's pre-fill for safety
+            }
+        }
 
         const onConnect = () => {
             setStatus('idle');
@@ -60,41 +73,67 @@ const LobbyPage = () => {
             socket.off('private_game_created', onPrivateGameCreated);
             socket.off('error', onError);
         };
-    }, [navigate, dispatch, wallet]);
+    }, [navigate, dispatch, isAuthenticated]);
+
+    const getUserData = () => {
+        if (wallet) {
+            return {
+                wallet: wallet.account.address,
+                name: 'Player ' + wallet.account.address.substr(0, 4)
+            };
+        } else if (tgUser) {
+            return {
+                telegramId: tgUser.id,
+                name: tgUser.first_name
+            };
+        }
+        return null;
+    };
 
     const handleJoinQueue = () => {
-        if (!wallet) return;
+        const userData = getUserData();
+        if (!userData) return;
+
         setError('');
         setStatus('queue');
         const socket = connectSocket();
-        socket.emit('join_queue', {
-            wallet: wallet.account.address,
-            name: 'Player ' + wallet.account.address.substr(0, 4)
-        });
+        socket.emit('join_queue', userData);
     };
 
     const handleCreatePrivate = () => {
-        if (!wallet) return;
+        const userData = getUserData();
+        if (!userData) return;
+
         setError('');
         const socket = connectSocket();
-        socket.emit('create_private_game', {
-            wallet: wallet.account.address,
-            name: 'Host'
-        });
+        socket.emit('create_private_game', userData);
     };
 
     const handleJoinPrivate = () => {
-        if (!wallet) return;
+        const userData = getUserData();
+        if (!userData) return;
+
         setError('');
         if (joinCode.length !== 6) return;
         const socket = connectSocket();
         socket.emit('join_private_game', {
             code: joinCode,
-            userData: {
-                wallet: wallet.account.address,
-                name: 'Guest'
-            }
+            userData
         });
+    };
+
+    const handleInviteFriend = () => {
+        if (!inviteCode) return;
+        const inviteLink = `https://t.me/SetGameTonBot/app?startapp=room_${inviteCode}`;
+        const message = `Play Set Game with me! Code: ${inviteCode}`;
+
+        if (window.Telegram?.WebApp?.openTelegramLink) {
+            window.Telegram.WebApp.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(inviteLink)}&text=${encodeURIComponent(message)}`);
+        } else {
+            // Fallback for web
+            navigator.clipboard.writeText(inviteLink);
+            alert('Invite link copied to clipboard!');
+        }
     };
 
     return (
@@ -141,6 +180,11 @@ const LobbyPage = () => {
                     <div className={styles.waiting}>
                         <p>Share this code with your friend:</p>
                         <div className={styles.code}>{inviteCode}</div>
+
+                        <button className={styles.inviteButton} onClick={handleInviteFriend}>
+                            Invite Friend 📤
+                        </button>
+
                         <div className={styles.spinner}></div>
                         <p>Waiting for player to join...</p>
                     </div>
