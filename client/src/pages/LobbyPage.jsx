@@ -4,26 +4,38 @@ import { connectSocket, disconnectSocket } from '../socket';
 import { useGame } from '../context/GameContext';
 import styles from './LobbyPage.module.css';
 
-import { useTonWallet } from '@tonconnect/ui-react';
 
 const LobbyPage = () => {
     const { dispatch } = useGame();
     const navigate = useNavigate();
-    const wallet = useTonWallet();
     const [status, setStatus] = useState('idle'); // connecting, idle, queue, waiting_private, found
     const [inviteCode, setInviteCode] = useState('');
     const [joinCode, setJoinCode] = useState('');
     const [error, setError] = useState('');
 
-    const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
-    const isAuthenticated = wallet || tgUser;
-
-    useEffect(() => {
-        if (!isAuthenticated) {
-            navigate('/');
-            return;
+    const getUserData = () => {
+        const tgUser = window.Telegram?.WebApp?.initDataUnsafe?.user;
+        if (tgUser) {
+            return {
+                telegramId: tgUser.id,
+                name: tgUser.first_name
+            };
         }
 
+        // Fallback for testing/browser without Telegram
+        let guestId = localStorage.getItem('guest_id');
+        if (!guestId) {
+            guestId = 'guest_' + Math.floor(Math.random() * 100000);
+            localStorage.setItem('guest_id', guestId);
+        }
+        return {
+            telegramId: guestId,
+            name: 'Guest ' + guestId.slice(-4)
+        };
+    };
+
+    useEffect(() => {
+        // No auth check needed for now, we use guest fallback
         const socket = connectSocket();
 
         // Check for deep link start param
@@ -32,7 +44,6 @@ const LobbyPage = () => {
             const code = startParam.split('_')[1];
             if (code) {
                 setJoinCode(code);
-                // Auto join logic could go here, but let's pre-fill for safety
             }
         }
 
@@ -73,7 +84,7 @@ const LobbyPage = () => {
             socket.off('private_game_created', onPrivateGameCreated);
             socket.off('error', onError);
         };
-    }, [navigate, dispatch, isAuthenticated]);
+    }, [navigate, dispatch]);
 
     const getUserData = () => {
         if (wallet) {
