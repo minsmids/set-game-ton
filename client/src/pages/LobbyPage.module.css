@@ -111,3 +111,20 @@
     color: var(--color-secondary);
     margin-bottom: var(--spacing-md);
 }
+
+.inviteButton {
+    background: #24A1DE;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    margin: 15px 0;
+    font-weight: bold;
+    transition: transform 0.2s;
+}
+
+.inviteButton:active {
+    transform: scale(0.95);
+}

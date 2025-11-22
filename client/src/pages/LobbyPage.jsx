@@ -124,7 +124,7 @@ const LobbyPage = () => {
 
     const handleInviteFriend = () => {
         if (!inviteCode) return;
-        const inviteLink = `https://t.me/SetGameTonBot/app?startapp=room_${inviteCode}`;
+        const inviteLink = `https://t.me/setboardgame_bot/app?startapp=room_${inviteCode}`;
         const message = `Play Set Game with me! Code: ${inviteCode}`;
 
         if (window.Telegram?.WebApp?.openTelegramLink) {
