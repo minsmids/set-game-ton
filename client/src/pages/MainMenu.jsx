@@ -23,13 +23,23 @@ const MainMenu = () => {
                     </div>
                 </Link>
 
-                <Link to="/lobby" className={styles.menuItem}>
-                    <div className={styles.icon}>⚔️</div>
-                    <div className={styles.label}>
-                        <h3>Ranked Match</h3>
-                        <p>Play against others</p>
-                    </div>
-                </Link>
+                <div
+                    className={`${styles.menuItem} ${!wallet ? styles.disabled : ''}`}
+                    onClick={(e) => {
+                        if (!wallet) {
+                            e.preventDefault();
+                            alert('Please connect your TON wallet to play Ranked Match!');
+                        }
+                    }}
+                >
+                    <Link to={wallet ? "/lobby" : "#"} style={{ textDecoration: 'none', color: 'inherit', display: 'flex', width: '100%' }}>
+                        <div className={styles.icon}>⚔️</div>
+                        <div className={styles.label}>
+                            <h3>Ranked Match</h3>
+                            <p>{wallet ? "Play against others" : "Connect Wallet to Play"}</p>
+                        </div>
+                    </Link>
+                </div>
 
                 <div className={`${styles.menuItem} ${styles.disabled}`}>
                     <div className={styles.icon}>🏆</div>

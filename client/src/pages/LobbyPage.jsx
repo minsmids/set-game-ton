@@ -4,28 +4,31 @@ import { connectSocket, disconnectSocket } from '../socket';
 import { useGame } from '../context/GameContext';
 import styles from './LobbyPage.module.css';
 
+import { useTonWallet } from '@tonconnect/ui-react';
+
 const LobbyPage = () => {
     const { dispatch } = useGame();
     const navigate = useNavigate();
+    const wallet = useTonWallet();
     const [status, setStatus] = useState('idle'); // connecting, idle, queue, waiting_private, found
     const [inviteCode, setInviteCode] = useState('');
     const [joinCode, setJoinCode] = useState('');
     const [error, setError] = useState('');
 
     useEffect(() => {
-        // Temporary: Bypass wallet for testing
-        const mockWallet = 'user_' + Math.random().toString(36).substr(2, 9);
+        if (!wallet) {
+            navigate('/');
+            return;
+        }
 
         const socket = connectSocket();
 
         const onConnect = () => {
-            // Don't auto-join queue anymore
-            setStatus('idle'); // Set status to idle once connected
+            setStatus('idle');
         };
 
         const onGameStart = (data) => {
             setStatus('found');
-            // We pass the socket instance to context, though it's also available via getSocket()
             dispatch({ type: 'START_MULTIPLAYER_GAME', payload: { ...data, socket } });
             setTimeout(() => {
                 navigate('/multiplayer');
@@ -39,7 +42,7 @@ const LobbyPage = () => {
 
         const onError = ({ message }) => {
             setError(message);
-            setStatus('idle'); // Go back to idle on error
+            setStatus('idle');
         };
 
         socket.on('connect', onConnect);
@@ -47,7 +50,6 @@ const LobbyPage = () => {
         socket.on('private_game_created', onPrivateGameCreated);
         socket.on('error', onError);
 
-        // If already connected (e.g. coming back), trigger logic
         if (socket.connected) {
             onConnect();
         }
@@ -57,40 +59,39 @@ const LobbyPage = () => {
             socket.off('game_start', onGameStart);
             socket.off('private_game_created', onPrivateGameCreated);
             socket.off('error', onError);
-            // Do NOT disconnect here, as we need the socket in the next page
         };
-    }, [navigate, dispatch]);
+    }, [navigate, dispatch, wallet]);
 
     const handleJoinQueue = () => {
-        setError(''); // Clear any previous errors
+        if (!wallet) return;
+        setError('');
         setStatus('queue');
         const socket = connectSocket();
-        const mockWallet = 'user_' + Math.random().toString(36).substr(2, 9);
         socket.emit('join_queue', {
-            wallet: mockWallet,
-            name: 'Player ' + mockWallet.substr(0, 4)
+            wallet: wallet.account.address,
+            name: 'Player ' + wallet.account.address.substr(0, 4)
         });
     };
 
     const handleCreatePrivate = () => {
-        setError(''); // Clear any previous errors
+        if (!wallet) return;
+        setError('');
         const socket = connectSocket();
-        const mockWallet = 'user_' + Math.random().toString(36).substr(2, 9);
         socket.emit('create_private_game', {
-            wallet: mockWallet,
+            wallet: wallet.account.address,
             name: 'Host'
         });
     };
 
     const handleJoinPrivate = () => {
-        setError(''); // Clear any previous errors
+        if (!wallet) return;
+        setError('');
         if (joinCode.length !== 6) return;
         const socket = connectSocket();
-        const mockWallet = 'user_' + Math.random().toString(36).substr(2, 9);
         socket.emit('join_private_game', {
             code: joinCode,
             userData: {
-                wallet: mockWallet,
+                wallet: wallet.account.address,
                 name: 'Guest'
             }
         });
