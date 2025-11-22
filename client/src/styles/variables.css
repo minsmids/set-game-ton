@@ -1,0 +1,36 @@
+:root {
+  /* Colors */
+  --bg-app: #0f0f13;
+  --bg-surface: #1a1a20;
+  --bg-surface-hover: #25252e;
+  
+  --color-primary: #6c5ce7;
+  --color-primary-glow: rgba(108, 92, 231, 0.5);
+  --color-secondary: #ff7675;
+  --color-accent: #fdcb6e;
+  
+  --text-primary: #ffffff;
+  --text-secondary: #a4b0be;
+  --text-muted: #636e72;
+
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+
+  /* Border Radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.2);
+  --shadow-glow: 0 0 15px var(--color-primary-glow);
+  
+  /* Typography */
+  --font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}

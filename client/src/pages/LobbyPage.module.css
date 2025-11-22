@@ -1,0 +1,113 @@
+.container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: var(--spacing-md);
+}
+
+.card {
+    background: var(--bg-surface);
+    padding: var(--spacing-xl);
+    border-radius: var(--radius-lg);
+    text-align: center;
+    box-shadow: var(--shadow-md);
+    width: 100%;
+    max-width: 400px;
+}
+
+.card h2 {
+    margin-bottom: var(--spacing-lg);
+    color: var(--color-primary);
+}
+
+.loader {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid var(--bg-surface-hover);
+    border-top-color: var(--color-primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.found {
+    color: var(--color-secondary);
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.menu {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.button {
+    padding: var(--spacing-md);
+    background: var(--color-primary);
+    color: white;
+    border-radius: var(--radius-md);
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.button:hover:not(:disabled) {
+    background: #5a4ad1;
+}
+
+.button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.divider {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.joinInput {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+.joinInput input {
+    flex: 1;
+    padding: var(--spacing-md);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--bg-surface-hover);
+    background: var(--bg-app);
+    color: var(--text-primary);
+    font-family: inherit;
+    text-align: center;
+    letter-spacing: 2px;
+}
+
+.code {
+    font-size: 3rem;
+    font-weight: 900;
+    letter-spacing: 8px;
+    color: var(--color-accent);
+    margin: var(--spacing-md) 0;
+    background: var(--bg-app);
+    padding: var(--spacing-md);
+    border-radius: var(--radius-md);
+}
+
+.error {
+    color: var(--color-secondary);
+    margin-bottom: var(--spacing-md);
+}
