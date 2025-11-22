@@ -6,6 +6,7 @@ import TrainingPage from './pages/TrainingPage';
 
 import LobbyPage from './pages/LobbyPage';
 import MultiplayerPage from './pages/MultiplayerPage';
+import LeaderboardPage from './pages/LeaderboardPage';
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
           <Route path="/training" element={<TrainingPage />} />
           <Route path="/lobby" element={<LobbyPage />} />
           <Route path="/multiplayer" element={<MultiplayerPage />} />
+          <Route path="/leaderboard" element={<LeaderboardPage />} />
         </Routes>
       </Router>
     </GameProvider>

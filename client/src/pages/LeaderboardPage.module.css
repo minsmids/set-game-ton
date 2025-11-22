@@ -1,0 +1,102 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    padding: 20px;
+    background: var(--bg-color);
+    color: var(--text-color);
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 30px;
+    position: relative;
+}
+
+.backButton {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1.2rem;
+    cursor: pointer;
+    position: absolute;
+    left: 0;
+}
+
+.header h1 {
+    flex: 1;
+    text-align: center;
+    margin: 0;
+    font-size: 2rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+.content {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    padding: 20px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    overflow-y: auto;
+}
+
+.loader,
+.empty {
+    text-align: center;
+    color: var(--text-secondary);
+    margin-top: 50px;
+    font-size: 1.2rem;
+}
+
+.list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.row {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    transition: transform 0.2s;
+}
+
+.headerRow {
+    background: rgba(255, 255, 255, 0.1);
+    font-weight: bold;
+    color: var(--primary-color);
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+}
+
+.rank {
+    width: 50px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.player {
+    flex: 1;
+    font-family: monospace;
+}
+
+.points {
+    width: 80px;
+    text-align: right;
+    font-weight: bold;
+    color: var(--accent-color);
+}
+
+.wins {
+    width: 60px;
+    text-align: right;
+    color: var(--text-secondary);
+}

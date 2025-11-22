@@ -5,6 +5,7 @@ class GameManager {
         this.io = io;
         this.rooms = new Map(); // roomId -> roomData
         this.queue = []; // Array of socketIds waiting for a game
+        this.users = new Map(); // walletAddress -> { wins: 0, points: 0, gamesPlayed: 0 }
     }
 
     // Handle player connection
@@ -27,9 +28,80 @@ class GameManager {
             this.joinPrivateRoom(socket, code, userData);
         });
 
+        socket.on('get_leaderboard', () => {
+            const leaderboard = Array.from(this.users.entries())
+                .map(([wallet, data]) => ({ wallet, ...data }))
+                .sort((a, b) => b.points - a.points)
+                .slice(0, 10); // Top 10
+            socket.emit('leaderboard_data', leaderboard);
+        });
+
         socket.on('disconnect', () => {
             this.handleDisconnect(socket);
         });
+    }
+
+    // ... (existing methods)
+
+    updateUserStats(wallet, isWinner, pointsEarned) {
+        if (!wallet) return;
+
+        if (!this.users.has(wallet)) {
+            this.users.set(wallet, { wins: 0, points: 0, gamesPlayed: 0 });
+        }
+
+        const stats = this.users.get(wallet);
+        stats.gamesPlayed += 1;
+        stats.points += pointsEarned;
+        if (isWinner) {
+            stats.wins += 1;
+        }
+    }
+
+    handleGameAction(socket, action) {
+        const roomId = Array.from(socket.rooms).find(r => r.startsWith('room_'));
+        if (!roomId) return;
+
+        const room = this.rooms.get(roomId);
+        if (!room) return;
+
+        if (action.type === 'CLAIM_SET') {
+            // ... (existing CLAIM_SET logic)
+            const { cards } = action;
+            // ...
+            if (isSet) {
+                // ...
+                if (allOnBoard) {
+                    room.players[socket.id].score += 1;
+                    // ... (rest of logic)
+
+                    // Check for game over condition (e.g., deck empty and no sets)
+                    // For MVP, we don't have auto-end. 
+                    // But we should track points if we did.
+                }
+            }
+        } else if (action.type === 'SURRENDER') {
+            const opponentId = Object.keys(room.players).find(id => id !== socket.id);
+            const winnerData = room.players[opponentId];
+            const loserData = room.players[socket.id];
+
+            // Update stats
+            // Winner gets 10 points + their score
+            // Loser gets their score
+            this.updateUserStats(winnerData.wallet, true, 10 + winnerData.score);
+            this.updateUserStats(loserData.wallet, false, loserData.score);
+
+            this.io.to(roomId).emit('game_over', {
+                winner: opponentId,
+                reason: 'surrender',
+                scores: {
+                    [opponentId]: 10 + winnerData.score,
+                    [socket.id]: loserData.score
+                }
+            });
+
+            this.rooms.delete(roomId);
+        }
     }
 
     createPrivateRoom(socket, userData) {

@@ -41,13 +41,13 @@ const MainMenu = () => {
                     </Link>
                 </div>
 
-                <div className={`${styles.menuItem} ${styles.disabled}`}>
+                <Link to="/leaderboard" className={styles.menuItem}>
                     <div className={styles.icon}>🏆</div>
                     <div className={styles.label}>
                         <h3>Leaderboard</h3>
-                        <p>Global rankings (Coming Soon)</p>
+                        <p>Global rankings</p>
                     </div>
-                </div>
+                </Link>
             </div>
         </div>
     );
