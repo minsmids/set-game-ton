@@ -66,4 +66,8 @@
     position: absolute;
     top: var(--spacing-md);
     right: var(--spacing-md);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 100;
 }
